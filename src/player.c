@@ -221,6 +221,7 @@ void player_update(Entity *ent)
 void player_draw(Entity *ent)
 {
     //slog("player draw");
+    return;
     entity_draw(ent);
 }
 

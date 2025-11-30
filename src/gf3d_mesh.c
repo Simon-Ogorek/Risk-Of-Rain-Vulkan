@@ -6,23 +6,6 @@
 #include "gf3d_camera.h"
 #include "gf3d_vgraphics.h"
 
-// Ripped from Sprite Manager
-typedef struct
-{
-    Mesh            *mesh_list;      /**<pre-allocated space for sprites*/
-    Uint32          max_meshes;      /**<maximum concurrent sprites supported*/
-    Uint32          chain_length;     /**<length of swap chain*/
-    VkDevice        device;           /**<logical vulkan device*/
-    Pipeline       *pipe;             /**<the pipeline associated with sprite rendering*/
-    Pipeline       *sky_pipe;
-    VkBuffer        faceBuffer;       /**<memory handle for the face buffer (always two faces)*/
-    VkDeviceMemory  faceBufferMemory; /**<memory habdle for tge face memory*/
-    VkVertexInputAttributeDescription   attributeDescriptions[MESH_ATTRIBUTE_COUNT];
-    VkVertexInputBindingDescription     bindingDescription;
-    float           drawOrder;
-    Texture         *defaultTexture;
-} MeshManager;
-
 MeshManager mesh_manager;
 
 void gf3d_mesh_init(Uint32 mesh_max)
@@ -133,57 +116,12 @@ Mesh *gf3d_mesh_load(const char *filename)
         slog("New Mesh returned null");
         return NULL;
     }
-
-    /* Replace with 3D equivelant
-
-    sprite->texture = gf3d_texture_load(filename);
-    if (!sprite->texture)
-    {
-        slog("gf2d_sprite_load: failed to load texture for sprite");
-        gf2d_sprite_free(sprite);
-        return NULL;
-    }
-    
-    sprite->surface = sprite->texture->surface;
-    if (frame_width <= 0)frame_width = sprite->texture->width;
-    if (frame_height <= 0)frame_height = sprite->texture->height;
-    sprite->frameWidth = frame_width;
-    sprite->frameHeight = frame_height;
-    sprite->widthPercent = sprite->frameWidth / (float)sprite->texture->width;
-    sprite->heightPercent = sprite->frameHeight/ (float)sprite->texture->height;
-    if (frames_per_line)sprite->framesPerLine = frames_per_line;
-    else sprite->framesPerLine = 1;
-    gfc_line_cpy(nesh->filename,filename);
-    gf2d_sprite_create_vertex_buffer(sprite);
-    */
-
     ObjData *obj = gf3d_obj_load_from_file(filename);
 
     if (!obj)
     {
         slog("Obj data not found for %s", filename);
     }
-    
-    
-
-    /*
-    mesh->primitives = gfc_list_new_size(obj->face_count);
-
-    MeshPrimitive * (*make_a_prim) ();
-    make_a_prim = gf3d_mesh_primitive_new;
-    gfc_list_foreach(mesh->primitives, make_a_prim);
-    
-    MeshPrimitive *prim;
-    for (int i = 0; i < obj->face_count; i++)
-    {
-        prim = gfc_list_nth(mesh->primitives, i);
-        prim->objData = obj;
-    }
-    
-    void (*create_buffer) ();
-    create_buffer = gf3d_mesh_create_vertex_buffer_from_vertices;
-    gfc_list_foreach(mesh->primitives, create_buffer);
-    */
 
     gfc_line_cpy(mesh->filename, filename);
     mesh->primitives = gfc_list_new();

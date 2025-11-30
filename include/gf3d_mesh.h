@@ -70,6 +70,24 @@ typedef struct
     GFC_Box             bounds;
 }Mesh;
 
+// Ripped from Sprite Manager
+typedef struct
+{
+    Mesh            *mesh_list;      /**<pre-allocated space for sprites*/
+    Uint32          max_meshes;      /**<maximum concurrent sprites supported*/
+    Uint32          chain_length;     /**<length of swap chain*/
+    VkDevice        device;           /**<logical vulkan device*/
+    Pipeline       *pipe;             /**<the pipeline associated with sprite rendering*/
+    Pipeline       *sky_pipe;
+    VkBuffer        faceBuffer;       /**<memory handle for the face buffer (always two faces)*/
+    VkDeviceMemory  faceBufferMemory; /**<memory habdle for tge face memory*/
+    VkVertexInputAttributeDescription   attributeDescriptions[MESH_ATTRIBUTE_COUNT];
+    VkVertexInputBindingDescription     bindingDescription;
+    float           drawOrder;
+    Texture         *defaultTexture;
+} MeshManager;
+
+extern MeshManager mesh_manager;
 /**
  * @brief initializes the mesh system / configures internal data about mesh based rendering
  * @param mesh_max the maximum allowed simultaneous meshes supported at once.  Must be > 0

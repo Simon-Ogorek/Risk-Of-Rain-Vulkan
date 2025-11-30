@@ -264,9 +264,9 @@ Monster *spawn_monster(char *name)
 
     monst->curr_path->points = gfc_list_new();
 
-    monst->ent->scale.z = 1.5;
-    monst->ent->scale.x = 1.5;
-    monst->ent->scale.y = 1.5;
+    monst->ent->scale.z = 4;
+    monst->ent->scale.x = 4;
+    monst->ent->scale.y = 4;
 
 
     monst->state = UNAWARE;
@@ -413,7 +413,7 @@ void monster_think(Entity *ent)
     {
         if ((SDL_GetTicks() - monst->recoil_time) < monst->stats->time_between_attacks)
         {
-            slog("Still recoiling, %f ms left, returning", (SDL_GetTicks() - monst->recoil_time));
+            //slog("Still recoiling, %f ms left, returning", (SDL_GetTicks() - monst->recoil_time));
             return;
         }
         else

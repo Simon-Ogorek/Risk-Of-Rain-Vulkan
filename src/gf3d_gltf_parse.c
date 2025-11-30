@@ -175,6 +175,7 @@ void gf3d_gltf_get_buffer_view_data(GLTF *gltf,Uint32 viewIndex,char *buffer)
     sj_object_get_value_as_int(bufferView,"buffer",&index);
     sj_object_get_value_as_int(bufferView,"byteLength",&byteLength);
     sj_object_get_value_as_int(bufferView,"byteOffset",&byteOffset);
+    //slog("Checking buffer index of %i of length %i of offset %i", index, byteLength, byteOffset);
     gf3d_gltf_get_data_from_buffer(gltf,index,byteOffset,byteLength, buffer);
 }
 
@@ -192,10 +193,12 @@ const char *gf3d_gltf_accessor_get_details(GLTF* gltf,Uint32 accessorIndex, int 
     if (count)
     {
         sj_object_get_value_as_int(accessor,"count",count);
+        slog("Count got reported back as %i for index %i", *count, accessorIndex);
     }
     return sj_object_get_value_as_string(accessor,"type");
 }
 
+//Given a GLTF file and the JSON for a primitive return a ptr to a obj
 ObjData *gf3d_gltf_parse_primitive(GLTF *gltf,SJson *primitive)
 {
     ObjData *obj;
@@ -308,6 +311,24 @@ void gf3d_gltf_reorg_obj(ObjData *obj)
         if (obj->vertices)gfc_vector3d_copy(obj->faceVertices[i].vertex,obj->vertices[i]);
         if (obj->normals)gfc_vector3d_copy(obj->faceVertices[i].normal,obj->normals[i]);
         if (obj->texels)gfc_vector2d_copy(obj->faceVertices[i].texel,obj->texels[i]);
+    }
+
+    slog("GLTF VERTS:");
+    for (i = 0; i < obj->vertex_count; i++)
+    {
+        slog("Vertice: %f,%f,%f | Normal: %f,%f,%f | Texel : %f, %f, %f",
+              gfc_vector3d_to_slog(obj->vertices[i]),
+              gfc_vector3d_to_slog(obj->normals[i]),
+              gfc_vector3d_to_slog(obj->vertices[i])
+            );
+    }
+
+    slog("GLTF FACES:");
+    for (i = 0; i < obj->face_count; i++)
+    {
+        slog("Vertice: %f,%f,%f",
+              obj->outFace[i].verts[0]
+            );
     }
 }
 /*EOL@EOF*/
