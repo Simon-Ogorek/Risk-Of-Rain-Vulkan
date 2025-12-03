@@ -289,7 +289,8 @@ ObjData *gf3d_gltf_parse_primitive(GLTF *gltf,SJson *primitive)
             obj->face_count /= 3;
             obj->outFace = (Face *)gfc_allocate_array(sizeof(Face),obj->face_count);
 
-            gf3d_gltf_get_buffer_view_data(gltf,bufferIndex,(char *)obj->outFace);            
+            gf3d_gltf_get_buffer_view_data(gltf,bufferIndex,(char *)obj->outFace);      
+                  
         }
         else slog("failed to get accessor detials");
     }
@@ -303,7 +304,7 @@ void gf3d_gltf_reorg_obj(ObjData *obj)
     
     if (!obj)return;
     
-    obj->face_vert_count = obj->vertex_count;
+    obj->face_vert_count = obj->face_count * 3;
     obj->faceVertices = (Vertex *)gfc_allocate_array(sizeof(Vertex),obj->face_vert_count);
 
     for (i = 0; i< obj->vertex_count;i++)
@@ -311,24 +312,28 @@ void gf3d_gltf_reorg_obj(ObjData *obj)
         if (obj->vertices)gfc_vector3d_copy(obj->faceVertices[i].vertex,obj->vertices[i]);
         if (obj->normals)gfc_vector3d_copy(obj->faceVertices[i].normal,obj->normals[i]);
         if (obj->texels)gfc_vector2d_copy(obj->faceVertices[i].texel,obj->texels[i]);
+        slog("current vertice: %f,%f,%f", gfc_vector3d_to_slog(obj->vertices[i]));
     }
 
+    
     slog("GLTF VERTS:");
     for (i = 0; i < obj->vertex_count; i++)
     {
-        slog("Vertice: %f,%f,%f | Normal: %f,%f,%f | Texel : %f, %f, %f",
+        slog("Vertice: %f,%f,%f | Normal: %f,%f,%f | Texel : %f,%f",
               gfc_vector3d_to_slog(obj->vertices[i]),
               gfc_vector3d_to_slog(obj->normals[i]),
-              gfc_vector3d_to_slog(obj->vertices[i])
+              obj->texels[0], obj->texels[1]
             );
     }
 
-    slog("GLTF FACES:");
+    /*slog("GLTF FACES:");
     for (i = 0; i < obj->face_count; i++)
     {
-        slog("Vertice: %f,%f,%f",
-              obj->outFace[i].verts[0]
+        slog("Vertice 1: %i,%i,%i | Vertice 2: %i,%i,%i | Vertice 3: %f,%f,%f",
+              obj->outFace[i].verts[0],
+              obj->outFace[i].verts[1],
+              obj->outFace[i].verts[2]
             );
-    }
+    }*/
 }
 /*EOL@EOF*/

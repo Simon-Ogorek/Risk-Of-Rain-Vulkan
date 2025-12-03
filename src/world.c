@@ -128,7 +128,6 @@ void world_update(Entity *ent)
 void world_draw(Entity *ent)
 {
     //slog("world draw");
-    return;
     entity_draw(ent);
 }
 

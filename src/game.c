@@ -38,22 +38,16 @@ static int _done = 0;
 static Uint32 frame_delay = 33;
 static float fps = 0;
 
-Uint8 loading = 0;
-
-enum init_loading_steps {
-    Initial,
-    TwoD_Graphics_Systems,
-    Primary_Systems,
-    Input_Systems,
-    ThreeD_Graphics_System,
-    NPC_Systems,
-    World_Spawning,
-    Actor_Spawning,
-    UI_System,
-    Audio_System
+// menu_load > main_menu > menu_load > levels (in_game > level_transition) > end_screen
+enum game_state {
+    menu_load,
+    main_menu,
+    in_game,
+    level_transition,
+    end_screen
 };
 
-enum init_loading_steps curr_init_step;
+enum game_state curr_state = menu_load;
 void parse_arguments(int argc,char *argv[]);
 void game_frame_delay();
 
@@ -98,7 +92,6 @@ int main(int argc,char *argv[])
     GFC_Vector3D lightPos = { 0, 0 ,5};*/
     //initializtion    
 
-    loading = 1;
     SDL_SetRelativeMouseMode(SDL_TRUE);
     GFC_Vector3D cam = {0,50,500};
     parse_arguments(argc,argv);
@@ -147,12 +140,12 @@ int main(int argc,char *argv[])
     
     P_Camera* p_cam = spawn_camera(player);
 
-    Rigged_Mesh* hand = gf3d_rigged_load("models/GLTF/box.gltf");
+    Rigged_Mesh* hand = gf3d_rigged_load("models/GLTF/HANDTri.gltf");
 
     player_award_kill(player);
     monsters_init(player, world);
 
-    spawn_random_monster();
+    //spawn_random_monster();
 
     char player_health[10];
 
@@ -169,6 +162,8 @@ int main(int argc,char *argv[])
     Uint32 next_enemy_spawn_time = SDL_GetTicks() + (rand()%5000) + 10;
     gfc_audio_init(64,1,0);
 
+    GFC_Sound *boom = gfc_sound_load("audio/vine-boom.mp3", 1.0, 0);
+
     Texture *hand_text = gf3d_texture_load("models/GLTF/HandTexture.png");
 
 
@@ -181,7 +176,8 @@ int main(int argc,char *argv[])
 
         if (next_enemy_spawn_time < SDL_GetTicks())
         {
-            next_enemy_spawn_time = SDL_GetTicks() + (rand()%5000) + 10;
+            next_enemy_spawn_time = SDL_GetTicks() + (rand()%10) + 10;
+            gfc_sound_play(boom, 0, 1.0, -1);
             //spawn_random_monster();
         }
         sprintf(player_health, "%i", player->health);
@@ -207,7 +203,7 @@ int main(int argc,char *argv[])
         entity_system_draw_all();
         GFC_Matrix4 mat;
         gfc_matrix4_identity(mat);
-        gf3d_mesh_draw(hand->mesh, player->ent->matrix, GFC_COLOR_WHITE, NULL, gfc_vector3d(0,0,0), GFC_COLOR_WHITE);
+        gf3d_mesh_draw(hand->mesh, player->ent->matrix, GFC_COLOR_WHITE, hand_text, gfc_vector3d(0,0,0), GFC_COLOR_WHITE);
         //gf3d_mesh_draw(player->ent->mesh, mat, GFC_COLOR_WHITE, hand_text, gfc_vector3d(0,0,0), GFC_COLOR_WHITE);
         //2D draws
 
