@@ -3,7 +3,7 @@
 #include "world.h"
 
 #define PATH_STALENESS_DIST 20
-
+#define MONST_COUNT 5
 typedef struct Path
 {
      GFC_List* points;
@@ -45,7 +45,7 @@ typedef struct Monster
     Uint32 attack_time;
 
     Uint32 recoil_time;
-
+    char* behavior;
 }Monster;
 
 void monsters_init(Player* p, World* w);

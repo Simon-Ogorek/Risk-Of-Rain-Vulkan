@@ -174,7 +174,8 @@ NavNode* gfc_find_closest_node(GFC_Vector3D point)
 
 void spawn_random_monster()
 {
-    char names[5][20] =
+
+    char names[MONST_COUNT][20] =
     {
         "friend",
         "bar_knee",
@@ -183,7 +184,7 @@ void spawn_random_monster()
         "count_fresh"
     };
 
-    char *name = names[rand() % 5];
+    char *name = names[rand() % MONST_COUNT];
 
     spawn_monster(name);
 
@@ -239,6 +240,7 @@ Monster *spawn_monster(char *name)
     sj_get_integer_value(sj_object_get_value(monst_def,"time_between_attacks"),&monst->stats->time_between_attacks);
     sj_get_integer_value(sj_object_get_value(monst_def,"offsetZ"),&monst->stats->offsetZ);
     sj_get_integer_value(sj_object_get_value(monst_def,"elemental"),&monst->stats->elemental);
+    sj_get_string_value(sj_object_get_value(monst_def,"behavior"));
     monst->stats->behavior = sj_get_string_value(sj_object_get_value(monst_def,"behavior"));
     slog("awareness : %i | range : %i",monst->stats->aware_range, monst->stats->range);
     

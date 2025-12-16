@@ -312,19 +312,19 @@ void gf3d_gltf_reorg_obj(ObjData *obj)
         if (obj->vertices)gfc_vector3d_copy(obj->faceVertices[i].vertex,obj->vertices[i]);
         if (obj->normals)gfc_vector3d_copy(obj->faceVertices[i].normal,obj->normals[i]);
         if (obj->texels)gfc_vector2d_copy(obj->faceVertices[i].texel,obj->texels[i]);
-        slog("current vertice: %f,%f,%f", gfc_vector3d_to_slog(obj->vertices[i]));
+     //   slog("current vertice: %f,%f,%f", gfc_vector3d_to_slog(obj->vertices[i]));
     }
 
     
-    slog("GLTF VERTS:");
+    /*slog("GLTF VERTS:");
     for (i = 0; i < obj->vertex_count; i++)
     {
-        slog("Vertice: %f,%f,%f | Normal: %f,%f,%f | Texel : %f,%f",
+     //   slog("Vertice: %f,%f,%f | Normal: %f,%f,%f | Texel : %f,%f",
               gfc_vector3d_to_slog(obj->vertices[i]),
               gfc_vector3d_to_slog(obj->normals[i]),
               obj->texels[0], obj->texels[1]
             );
-    }
+    }*/
 
     /*slog("GLTF FACES:");
     for (i = 0; i < obj->face_count; i++)

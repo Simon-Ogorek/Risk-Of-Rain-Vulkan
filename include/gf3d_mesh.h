@@ -1,7 +1,7 @@
 #ifndef __GF3D_MESH_H__
 #define __GF3D_MESH_H__
 
-#define MESH_ATTRIBUTE_COUNT 3
+#define MESH_ATTRIBUTE_COUNT 5
 
 #include <stdalign.h>
 #include <vulkan/vulkan.h>
@@ -25,10 +25,14 @@ typedef struct
     GFC_Matrix4     model;
     GFC_Matrix4     view;
     GFC_Matrix4     proj;
+
     GFC_Vector4D    color;
     GFC_Vector4D    camera;
     GFC_Vector4D    lightPos;
     GFC_Vector4D    lightColor;
+
+    GFC_Matrix4     bones[64];
+
 }MeshUBO;
 
 typedef struct
@@ -44,6 +48,8 @@ typedef struct
     GFC_Vector3D vertex;
     GFC_Vector3D normal;
     GFC_Vector2D texel;
+    GFC_Vector4D bones;
+    GFC_Vector4D weights;
 }Vertex;
 
 typedef struct

@@ -32,6 +32,8 @@
 #include "gf3d_gltf_parse.h"
 
 #include "gf3d_rig.h"
+
+#include "SDL_mixer.h"
 extern int __DEBUG;
 
 static int _done = 0;
@@ -94,6 +96,7 @@ int main(int argc,char *argv[])
 
     SDL_SetRelativeMouseMode(SDL_TRUE);
     GFC_Vector3D cam = {0,50,500};
+    Uint8 gameStarted = 0;
     parse_arguments(argc,argv);
     init_logger("gf3d.log",0);
     slog("gf3d begin");
@@ -145,7 +148,7 @@ int main(int argc,char *argv[])
     player_award_kill(player);
     monsters_init(player, world);
 
-    //spawn_random_monster();
+    spawn_random_monster();
 
     char player_health[10];
 
@@ -158,37 +161,52 @@ int main(int argc,char *argv[])
     Sprite* xp_pic = gf2d_sprite_load_image("icons/xp.png");
     Sprite* crosshair_pic = gf2d_sprite_load_image("icons/crosshair.png");
     Sprite* shop_pic = gf2d_sprite_load_image("icons/shop.png");
+    Sprite* main_menu = gf2d_sprite_load_image("icons/menu.png");
     Uint8 shop_active = 0;
     Uint32 next_enemy_spawn_time = SDL_GetTicks() + (rand()%5000) + 10;
-    gfc_audio_init(64,1,0);
+    gfc_audio_init(64,1,1);
 
-    GFC_Sound *boom = gfc_sound_load("audio/vine-boom.mp3", 1.0, 0);
-
+    slog("%i channels",Mix_AllocateChannels(-1));
+    GFC_Sound *boom = gfc_sound_load("audio/boom.wav", 0.5, 0);
+    
+    if (!boom)
+        slog("Audio sucks");
     Texture *hand_text = gf3d_texture_load("models/GLTF/HandTexture.png");
 
-
-    
+    GFC_Sound *music = gfc_sound_load("audio/theme.wav", .7, 0);
+    Mix_PlayChannel(-1, music->sound, -1);
     
     //gf3d_camera_look_at(gfc_vector3d(0,0,0),&cam);
     while(!_done)
     {
         
-
-        if (next_enemy_spawn_time < SDL_GetTicks())
+        if (gameStarted)
         {
-            next_enemy_spawn_time = SDL_GetTicks() + (rand()%10) + 10;
-            gfc_sound_play(boom, 0, 1.0, -1);
-            //spawn_random_monster();
+            
+            if (next_enemy_spawn_time < SDL_GetTicks())
+            {
+                next_enemy_spawn_time = SDL_GetTicks() + (rand()%10000) + 3000;
+                slog("vine boom sound");
+                //gfc_sound_play(boom, 0, 1.0, -1);
+                if (Mix_PlayChannel(-1,boom->sound, 1) == -1)
+                {
+                    slog("mix failed");
+                    slog("%s", Mix_GetError());
+                }
+                slog("end of vine boom");
+                spawn_random_monster();
+            }
+            sprintf(player_health, "%i", player->health);
+            sprintf(player_level, "%i", player->level);
+            sprintf(player_money, "%i", player->money);
         }
-        sprintf(player_health, "%i", player->health);
-        sprintf(player_level, "%i", player->level);
-        sprintf(player_money, "%i", player->money);
+
         gfc_input_update();
         gf2d_mouse_update();
         gf2d_font_update();
         //resetMouseToCenter();
-
-        entity_system_think_all();
+        if (gameStarted)
+            entity_system_think_all();
         entity_system_update_all();
 
         //world updates
@@ -203,20 +221,28 @@ int main(int argc,char *argv[])
         entity_system_draw_all();
         GFC_Matrix4 mat;
         gfc_matrix4_identity(mat);
-        gf3d_mesh_draw(hand->mesh, player->ent->matrix, GFC_COLOR_WHITE, hand_text, gfc_vector3d(0,0,0), GFC_COLOR_WHITE);
+        if (gameStarted)
+            gf3d_rigged_draw(hand, player->ent->matrix, GFC_COLOR_WHITE, hand_text, gfc_vector3d(0,0,0), GFC_COLOR_WHITE);
         //gf3d_mesh_draw(player->ent->mesh, mat, GFC_COLOR_WHITE, hand_text, gfc_vector3d(0,0,0), GFC_COLOR_WHITE);
         //2D draws
+        if (gameStarted)
+        {
+            gf2d_sprite_draw_image(crosshair_pic, gfc_vector2d(1920/2 - 32, 1200/2 - 32));
 
-        gf2d_sprite_draw_image(crosshair_pic, gfc_vector2d(1920/2 - 32, 1200/2 - 32));
+            gf2d_sprite_draw_image(heart_pic, gfc_vector2d(10,10));
+            gf2d_font_draw_line_tag(player_health,FT_H1,GFC_COLOR_WHITE, gfc_vector2d(80,30));
 
-        gf2d_sprite_draw_image(heart_pic, gfc_vector2d(10,10));
-        gf2d_font_draw_line_tag(player_health,FT_H1,GFC_COLOR_WHITE, gfc_vector2d(80,30));
-
-        gf2d_sprite_draw_image(money_pic, gfc_vector2d(1700,10));
-        gf2d_font_draw_line_tag(player_money,FT_H1,GFC_COLOR_WHITE, gfc_vector2d(1770,30));
+            gf2d_sprite_draw_image(money_pic, gfc_vector2d(1700,10));
+            gf2d_font_draw_line_tag(player_money,FT_H1,GFC_COLOR_WHITE, gfc_vector2d(1770,30));
+            
+            gf2d_sprite_draw_image(xp_pic, gfc_vector2d(150,10));
+            gf2d_font_draw_line_tag(player_level,FT_H1,GFC_COLOR_WHITE, gfc_vector2d(220,30));
+        }
+        if (!gameStarted)
+        {
+            gf2d_sprite_draw_image(main_menu, gfc_vector2d(0,0));
+        }
         
-        gf2d_sprite_draw_image(xp_pic, gfc_vector2d(150,10));
-        gf2d_font_draw_line_tag(player_level,FT_H1,GFC_COLOR_WHITE, gfc_vector2d(220,30));
 
         if (shop_active)
         {
@@ -225,6 +251,10 @@ int main(int argc,char *argv[])
         if (gfc_input_key_pressed("p"))
         {
             shop_active ^= 1;
+        }
+        if (gfc_input_key_pressed("m"))
+        {
+            gameStarted = 1;
         }
         gf2d_mouse_draw();
         gf3d_vgraphics_render_end();
